@@ -130,11 +130,39 @@ print_modname() {
 
 # Copy/extract your module files into $MODPATH in on_install.
 
+# Dynamic Device Detections
+dynamic_device_detect()
+{
+    target_device=$(getprop ro.product.device)
+    ui_print "- Product is $target_device"
+    ui_print "- Shipping Dynamic Extras"
+    case $target_device in
+        berlna)
+            ;;
+        berlin)
+            ;;
+#        dubai)
+#            ;;
+#        tundra)
+#            ;;
+#        xpeng)
+#            ;;
+        *)
+		    echo "$target_device not supported"
+		    abort
+		        ;;
+    esac
+}
+
 on_install() {
   # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
   # Extend/change the logic to whatever you want
   ui_print "- Extracting module files"
   unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
+# Ship Dynamic Extras
+  dynamic_device_detect
+  unzip -o "$ZIPFILE" "dynamic/$target_device/*" -d $TMPDIR >&2
+  cp -af $TMPDIR/dynamic/$target_device/* $MODPATH/system
 }
 
 # Only some special files require specific permissions
